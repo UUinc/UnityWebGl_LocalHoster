@@ -67,6 +67,12 @@ namespace UnityWebGl_LocalHoster
 
         private void start_BTN_Click(object sender, EventArgs e)
         {
+            if (folderPathName_L.Text == "")
+            {
+                MessageBox.Show("No WebGl folder was selected!\nselect a folder and try again", "No folder selected", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
             isStart = !isStart;
 
             if (isStart)
@@ -77,12 +83,6 @@ namespace UnityWebGl_LocalHoster
                 return;
             }
             start_BTN.Text = "stop localhost";
-
-            if (folderPathName_L.Text == "")
-            {
-                MessageBox.Show("No WebGl folder was selected!\nselect a folder and try again", "No folder selected", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
 
             string unityWebGlHosterPath;
             
