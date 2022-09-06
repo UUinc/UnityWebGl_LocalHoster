@@ -10,9 +10,9 @@ namespace UnityWebGl_LocalHoster
     public partial class MainPage : Form
     {
         string processName;
-        bool isProcessWorking;
         ComboBox version_CB;
         private string folderPath = "";
+        bool isStart = true;
 
         public MainPage()
         {
@@ -22,7 +22,7 @@ namespace UnityWebGl_LocalHoster
         {
             // Creating and setting the properties of comboBox
             version_CB = new ComboBox();
-            version_CB.Location = new Point(226, 265);
+            version_CB.Location = new Point(231, 265);
             version_CB.Size = new Size(92, 22);
             version_CB.Name = "version_CB";
             version_CB.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -33,12 +33,25 @@ namespace UnityWebGl_LocalHoster
 
             foreach (string dir in dirs)
             {
+                if(!Directory.Exists(dir + @"\Editor\Data\PlaybackEngines\WebGLSupport\BuildTools"))
+                {
+                    continue;
+                }
+
                 var version = dir.Remove(0, rootPath.Length + 1);
                 version_CB.Items.Add(version);
             }
 
             // Adding this ComboBox to the form
             this.Controls.Add(version_CB);
+
+            //tool tip
+            gamePath_toolTip.SetToolTip(gamePath_L, "required | Choose your WebGl game folder");
+            gamePath_toolTip.SetToolTip(gamePath_BTN, "required | Choose your WebGl game folder");
+            gamePath_toolTip.SetToolTip(port_L, "optional | Port number by default is 8000");
+            gamePath_toolTip.SetToolTip(port_TB, "optional | Port number by default is 8000");
+            gamePath_toolTip.SetToolTip(version_L, "optional | unity webgl build version");
+            gamePath_toolTip.SetToolTip(version_CB, "optional | unity webgl build version");
         }
         private void gamePath_BTN_Click(object sender, EventArgs e)
         {
@@ -54,6 +67,17 @@ namespace UnityWebGl_LocalHoster
 
         private void start_BTN_Click(object sender, EventArgs e)
         {
+            isStart = !isStart;
+
+            if (isStart)
+            {
+                start_BTN.Text = "start localhost";
+                localhostLink_L.Text = "";
+                StopHost();
+                return;
+            }
+            start_BTN.Text = "stop localhost";
+
             if (folderPathName_L.Text == "")
             {
                 MessageBox.Show("No WebGl folder was selected!\nselect a folder and try again", "No folder selected", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -75,12 +99,20 @@ namespace UnityWebGl_LocalHoster
 
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            //startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = "/K " + command;
+            startInfo.Arguments = "/C " + command;
             process.StartInfo = startInfo;
-            isProcessWorking = process.Start();
+            process.Start();
             processName = process.ProcessName;
+
+            //show localhost link
+            localhostLink_L.Text = "http://localhost:" + port_TB.Text;
+            localhostLink_L_Click(null, null);
+        }
+        private void localhostLink_L_Click(object sender, EventArgs e)
+        {
+            Process.Start(localhostLink_L.Text);
         }
 
         private string GetPort()
@@ -110,5 +142,6 @@ namespace UnityWebGl_LocalHoster
                 current.WaitForExit();
             }
         }
+
     }
 }
